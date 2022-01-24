@@ -131,7 +131,7 @@ internal class Options
     [Value(0, MetaName = "target", MetaValue = "<path>", HelpText = "Target path.", Required = true)]
     public string Target { get; set; }
 
-    [Option('f', "form", HelpText = "Form to filter by or fixup to (nfc, nfd).")]
+    [Option('f', "form", HelpText = "Form to filter by or fixup to (nfc, nfd, notnormalized).")]
     public FormFlags? Form { get; set; }
 
     [Option("fixup", HelpText = "Fixup filesystem names to match specified mode.")]
