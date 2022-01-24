@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Ask" Version="1.2.0"/>
+    <PackageReference Include="CommandLineParser" Version="2.8.0"/>
   </ItemGroup>
 
 </Project>
