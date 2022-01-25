@@ -37,7 +37,7 @@ Parser.Default.ParseArguments<Options>(args).WithParsed(v =>
                 if (File.Exists(x)) File.Move(x, fu);
                 else if (Directory.Exists(x)) Directory.Move(x, fu);
             }
-            return x;
+            return fu;
         });
     }
     else
