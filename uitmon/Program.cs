@@ -64,7 +64,7 @@ public class UitMon : HtmlArtifactTool
             foreach (var (issue, oldInfo) in states.ToList())
             {
                 var info = await GetStatusAsync(issue);
-                if (oldInfo == info) continue;
+                if (oldInfo.Status.SetEquals(info.Status)) continue;
                 LogInformation(@$"{DateTimeOffset.Now} Issue ""{info.Name}"" - changed to {info.GetStatusString()}");
                 try
                 {
