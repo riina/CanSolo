@@ -129,7 +129,7 @@ internal enum FormFlags
 internal class Options
 {
     [Value(0, MetaName = "target", MetaValue = "<path>", HelpText = "Target path.", Required = true)]
-    public string Target { get; set; }
+    public string Target { get; set; } = null!;
 
     [Option('f', "form", HelpText = "Form to filter by or fixup to (nfc, nfd, notnormalized).")]
     public FormFlags? Form { get; set; }

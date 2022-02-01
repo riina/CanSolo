@@ -2,26 +2,16 @@
 using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
+using QuickSetup;
 
 const string BaseUrl = "https://diverse.direct/wp-json/dd-front/v1/items?page={0}";
 const string EnvToken = "diche_discord_token";
 const string EnvChannel = "diche_discord_channel";
-const int delaySec = 60;
 
 int skip = args.Length == 0 ? 0 : int.Parse(args[0]);
-string token = Environment.GetEnvironmentVariable(EnvToken) ?? throw new KeyNotFoundException($"{EnvToken} not found");
-ulong channel = ulong.Parse(Environment.GetEnvironmentVariable(EnvChannel) ??
-                            throw new KeyNotFoundException($"{EnvChannel} not found"), CultureInfo.InvariantCulture);
-DiscordSocketClient discord = new();
-Console.Write("Discord... ");
-await discord.LoginAsync(TokenType.Bot, token);
-await discord.StartAsync();
-Console.WriteLine("ok");
-Console.Write("Waiting for chan... ");
-SocketChannel? chan = null;
-while ((chan = discord.GetChannel(channel)) == null) await Task.Delay(1000);
-if (chan is not IMessageChannel textChan) throw new InvalidOperationException($"Channel {channel} not found");
-Console.WriteLine("ok");
+(DiscordSocketClient discord, IMessageChannel textChan) = await QuickDiscord.CreateAsync(EnvToken, EnvChannel);
+using DiscordSocketClient d = discord;
+const int delaySec = 60;
 HttpClient http = new();
 Console.Write("Initial fetch... ");
 HashSet<long> ids = new((await GetPage(http, 1)).Skip(skip).Select(v => v.id));

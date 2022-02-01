@@ -1,9 +1,9 @@
-﻿using System.Globalization;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
+using QuickSetup;
 
 
 const string EvnTwitchId = "manfred_twitch_id";
@@ -18,18 +18,8 @@ HashSet<string> twitchUsers = args.Length == 0 ? throw new ArgumentException("<t
 string twitchId = Environment.GetEnvironmentVariable(EvnTwitchId) ?? throw new KeyNotFoundException($"{EvnTwitchId} not found");
 string twitchSecret = Environment.GetEnvironmentVariable(EvnTwitchSecret) ?? throw new KeyNotFoundException($"{EvnTwitchSecret} not found");
 string? twitchToken = Environment.GetEnvironmentVariable(EvnTwitchCurrentToken);
-string token = Environment.GetEnvironmentVariable(EnvToken) ?? throw new KeyNotFoundException($"{EnvToken} not found");
-ulong channel = ulong.Parse(Environment.GetEnvironmentVariable(EnvChannel) ?? throw new KeyNotFoundException($"{EnvChannel} not found"), CultureInfo.InvariantCulture);
-using DiscordSocketClient discord = new();
-Console.Write("Discord... ");
-await discord.LoginAsync(TokenType.Bot, token);
-await discord.StartAsync();
-Console.WriteLine("ok");
-Console.Write("Waiting for chan... ");
-SocketChannel? chan;
-while ((chan = discord.GetChannel(channel)) == null) await Task.Delay(1000);
-if (chan is not IMessageChannel textChan) throw new InvalidOperationException($"Channel {channel} not found");
-Console.WriteLine("ok");
+(DiscordSocketClient discord, IMessageChannel textChan) = await QuickDiscord.CreateAsync(EnvToken, EnvChannel);
+using DiscordSocketClient d = discord;
 var http = new HttpClient();
 Console.Write("twitch login... ");
 await LoginAsync(http, twitchId, twitchSecret, twitchToken);
