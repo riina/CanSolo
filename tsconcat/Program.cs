@@ -7,9 +7,9 @@ AR.Require("dir", "outfile").KeyDo((r, _) => {
     string dir = r["dir"], outfile = r["outfile"];
     List<string> files = Directory.GetFiles(dir, "*.ts").OrderBy(v =>
     {
-        Match m = re.Match(v);
+        Match m = re.Match(Path.GetFileNameWithoutExtension(v));
         if (!m.Success) throw new InvalidDataException($"unexpected filename format {v}");
-        return m.Groups[1].Value;
+        return long.Parse(m.Groups[1].Value);
     }).ToList();
     foreach (string file in files)
         Console.WriteLine(file);
