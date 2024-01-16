@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manfred", "Manfred\Manfred.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickSetup", "QuickSetup\QuickSetup.csproj", "{9D9C7CD5-51A5-4429-8714-27767940AF96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "checkover", "checkover\checkover.csproj", "{D0F3F14C-31D4-4F1C-83E8-A0A1C4FCEC56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{9D9C7CD5-51A5-4429-8714-27767940AF96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D9C7CD5-51A5-4429-8714-27767940AF96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D9C7CD5-51A5-4429-8714-27767940AF96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0F3F14C-31D4-4F1C-83E8-A0A1C4FCEC56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0F3F14C-31D4-4F1C-83E8-A0A1C4FCEC56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0F3F14C-31D4-4F1C-83E8-A0A1C4FCEC56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0F3F14C-31D4-4F1C-83E8-A0A1C4FCEC56}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
