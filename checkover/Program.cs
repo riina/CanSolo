@@ -8,7 +8,7 @@ rootCommand.Handler = CommandHandler.Create((string[] directories) =>
     var map = new Dictionary<string, List<string>>();
     foreach (string dir in directories)
     {
-        foreach (string subDir in Directory.GetDirectories(dir))
+        foreach (string subDir in Directory.GetFileSystemEntries(dir))
         {
             string name = Path.GetFileName(subDir);
             if (!map.TryGetValue(name, out var list))
