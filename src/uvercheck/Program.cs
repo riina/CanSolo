@@ -1,30 +1,30 @@
 ﻿// See https://aka.ms/new-console-template for more information
+
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Web;
 
-var rootCommand = new RootCommand
-{
-    new LatestCommand("latest", "Get latest version in stream"),
-    new RecentCommand("recent", "Get recent versions"),
-    new NotesCommand("notes", "Get release notes for version")
-};
-return await rootCommand.InvokeAsync(args);
+var rootCommand = new RootCommand { new LatestCommand("latest", "Get latest version in stream"), new RecentCommand("recent", "Get recent versions"), new NotesCommand("notes", "Get release notes for version") };
+var parseResult = rootCommand.Parse(args);
+parseResult.InvocationConfiguration.Output = Console.Error;
+parseResult.InvocationConfiguration.Error = Console.Error;
+return await parseResult.InvokeAsync();
+
 
 internal abstract class CommandBase : Command
 {
     public CommandBase(string name, string? description = null) : base(name, description)
     {
-        this.SetHandler(RunInternalAsync);
+        SetAction(RunInternalAsync);
     }
 
-    private async Task<int> RunInternalAsync(InvocationContext context)
+    private async Task<int> RunInternalAsync(ParseResult parseResult)
     {
         try
         {
-            return await RunAsync(context);
+            return await RunAsync(parseResult);
         }
         catch (Exception e)
         {
@@ -33,7 +33,7 @@ internal abstract class CommandBase : Command
         }
     }
 
-    protected abstract Task<int> RunAsync(InvocationContext context);
+    protected abstract Task<int> RunAsync(ParseResult parseResult);
 }
 
 internal class LatestCommand : CommandBase
@@ -42,13 +42,13 @@ internal class LatestCommand : CommandBase
 
     public LatestCommand(string name, string? description = null) : base(name, description)
     {
-        VersionArgument = new Argument<string>("version", "Target version") { HelpName = "version" };
-        AddArgument(VersionArgument);
+        VersionArgument = new Argument<string>("version") { HelpName = "version", Description = "Target version", Arity = ArgumentArity.ExactlyOne };
+        Add(VersionArgument);
     }
 
-    protected override async Task<int> RunAsync(InvocationContext context)
+    protected override async Task<int> RunAsync(ParseResult parseResult)
     {
-        string version = context.ParseResult.GetValueForArgument(VersionArgument);
+        string version = parseResult.GetRequiredValue(VersionArgument);
         using var ctx = new RequestContext();
         var result = await ctx.GetLatestBuildInStreamAsync(version);
         if (result == null)
@@ -67,17 +67,16 @@ internal class RecentCommand : CommandBase
 
     public RecentCommand(string name, string? description = null) : base(name, description)
     {
-        VersionArgument = new Argument<string?>("version", "Target version") { HelpName = "version", Arity = ArgumentArity.ZeroOrOne };
-        AddArgument(VersionArgument);
-        LimitOption = new Option<long>(new[] { "-l", "--limit" }, "Result limit") { ArgumentHelpName = "limit" };
-        LimitOption.SetDefaultValue(10L);
-        AddOption(LimitOption);
+        VersionArgument = new Argument<string?>("version") { HelpName = "version", Description = "Target version", Arity = ArgumentArity.ZeroOrOne };
+        Add(VersionArgument);
+        LimitOption = new Option<long>("-l", "--limit") { HelpName = "limit", Description = "Result limit", DefaultValueFactory = _ => 10L };
+        Add(LimitOption);
     }
 
-    protected override async Task<int> RunAsync(InvocationContext context)
+    protected override async Task<int> RunAsync(ParseResult parseResult)
     {
-        string? version = context.ParseResult.GetValueForArgument(VersionArgument);
-        long limit = context.ParseResult.GetValueForOption(LimitOption);
+        string? version = parseResult.GetValue(VersionArgument);
+        long limit = parseResult.GetValue(LimitOption);
         using var ctx = new RequestContext();
         IReadOnlyList<Release> result;
         if (version != null)
@@ -103,19 +102,19 @@ internal class NotesCommand : CommandBase
 
     public NotesCommand(string name, string? description = null) : base(name, description)
     {
-        OpenBrowserOption = new Option<bool>(new[] { "-b", "--open-browser" }, "Open browser with release notes");
-        AddOption(OpenBrowserOption);
-        VersionArgument = new Argument<string>("version", "Target version") { HelpName = "version" };
-        AddArgument(VersionArgument);
+        OpenBrowserOption = new Option<bool>("-b", "--open-browser") { Description = "Open browser with release notes" };
+        Add(OpenBrowserOption);
+        VersionArgument = new Argument<string>("version") { HelpName = "version", Description = "Target version", Arity = ArgumentArity.ExactlyOne };
+        Add(VersionArgument);
     }
 
-    protected override async Task<int> RunAsync(InvocationContext context)
+    protected override async Task<int> RunAsync(ParseResult parseResult)
     {
-        string version = context.ParseResult.GetValueForArgument(VersionArgument);
+        string version = parseResult.GetRequiredValue(VersionArgument);
         using var ctx = new RequestContext();
         var result = await ctx.GetLatestBuildInStreamAsync(version);
-        bool openBrowser = context.ParseResult.GetValueForOption(OpenBrowserOption);
-        if (result?.releaseNotes is not { url: { } } releaseNotes)
+        bool openBrowser = parseResult.GetValue(OpenBrowserOption);
+        if (result?.releaseNotes is not { url: not null } releaseNotes)
         {
             return 1;
         }
@@ -138,7 +137,7 @@ internal class NotesCommand : CommandBase
                     } while (File.Exists(tmpFile));
                     await File.WriteAllTextAsync(tmpFile, releaseNotesHtml);
                     Console.WriteLine("Opening release notes in browser...");
-                    using (var fs = new FileStream(tmpFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose))
+                    using (new FileStream(tmpFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose))
                     {
                         var psi = new System.Diagnostics.ProcessStartInfo();
                         psi.FileName = tmpFile;
@@ -163,9 +162,12 @@ internal class NotesCommand : CommandBase
         return 0;
     }
 }
+
 internal record ReleasesResult(long offset, long limit, long total, IReadOnlyList<Release> results);
+
 internal record Release(string version, DateTime releaseDate, ReleaseNotes? releaseNotes);
-internal record ReleaseNotes(string url, string type);
+
+internal record ReleaseNotes(string? url, string? type);
 
 internal class RequestContext : IDisposable
 {

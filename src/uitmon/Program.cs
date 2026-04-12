@@ -3,6 +3,9 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Art;
+using Art.Common;
+using Art.Common.Logging;
+using Art.Common.Management;
 using Art.Html;
 using Discord;
 using Discord.WebSocket;
@@ -13,10 +16,16 @@ const string EnvChannel = "uitmon_discord_channel";
 (DiscordSocketClient discord, IMessageChannel textChan) = await QuickDiscord.CreateAsync(EnvToken, EnvChannel);
 using DiscordSocketClient d = discord;
 UitMon mon = new();
-var fakeCfg = new ArtifactToolConfig(new DiskArtifactRegistrationManager(Directory.GetCurrentDirectory()), new InMemoryArtifactDataManager(), FailureBypassFlags.None);
+var fakeCfg = new ArtifactToolConfig(new DiskArtifactRegistrationManager(Directory.GetCurrentDirectory()), new InMemoryArtifactDataManager(), NullExtensionsContext.Instance, TimeProvider.System, true, true);
 var fakeProfile = new ArtifactToolProfile("uitmon::UitMon", "defalt≠default", null);
 await mon.InitializeAsync(fakeCfg, fakeProfile);
-mon.LogHandler = ConsoleLogHandler.Default;
+mon.LogHandler = new StyledLogHandler(
+    outWriter: Console.Out,
+    warnWriter: Console.Error,
+    errorWriter: Console.Error,
+    logPreferences: LogPreferences.Default,
+    alwaysPrintToErrorStream: true,
+    enableFancy: true); ;
 mon.OnChangeAsync += async v => { await textChan.SendMessageAsync(embed: new EmbedBuilder() { Title = v.Name, Url = v.Url, Fields = new() { new EmbedFieldBuilder().WithName("Status").WithValue(v.GetStatusString()) } }.Build()); };
 await mon.RunAsync(args);
 

@@ -1,0 +1,13 @@
+<Solution>
+  <Project Path="checkover/checkover.csproj" />
+  <Project Path="diche/diche.csproj" />
+  <Project Path="dimurcielago/dimurcielago.csproj" />
+  <Project Path="Manfred/Manfred.csproj" />
+  <Project Path="QuickSetup/QuickSetup.csproj" />
+  <Project Path="tsconcat/tsconcat.csproj" />
+  <Project Path="tsdecrypt/tsdecrypt.csproj" />
+  <Project Path="tsgaps/tsgaps.csproj" />
+  <Project Path="uformfilter/uformfilter.csproj" />
+  <Project Path="uitmon/uitmon.csproj" />
+  <Project Path="uvercheck/uvercheck.csproj" />
+</Solution>
