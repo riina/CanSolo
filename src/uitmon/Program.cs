@@ -25,7 +25,7 @@ mon.LogHandler = new StyledLogHandler(
     errorWriter: Console.Error,
     logPreferences: LogPreferences.Default,
     alwaysPrintToErrorStream: true,
-    enableFancy: true); ;
+    enableFancy: true);
 mon.OnChangeAsync += async v => { await textChan.SendMessageAsync(embed: new EmbedBuilder() { Title = v.Name, Url = v.Url, Fields = new() { new EmbedFieldBuilder().WithName("Status").WithValue(v.GetStatusString()) } }.Build()); };
 await mon.RunAsync(args);
 
